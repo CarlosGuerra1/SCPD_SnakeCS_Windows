@@ -1,0 +1,8 @@
+
+- Snake se actualiza con el timer no con las teclas
+- Validar movimiento de boton antes del timer
+- Ajustar tamaño y posición de pantalla
+- Crear nueva comida cada que es comida
+
+- Mostrar nombre de la serpiente
+- Introducir función servidor

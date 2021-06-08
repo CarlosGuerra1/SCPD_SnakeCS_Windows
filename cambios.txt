@@ -6,3 +6,4 @@
 
 - Mostrar nombre de la serpiente
 - Introducir función servidor
+- Delimitar tablero y dibujar limites

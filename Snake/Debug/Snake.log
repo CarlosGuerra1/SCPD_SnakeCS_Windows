@@ -1,4 +1,5 @@
 ﻿  Snake.cpp
-C:\Users\Wars-\Documents\GitHub\Snake_CS\Snake\Snake.cpp(863,25): warning C4101: 'szIP': variable local sin referencia
-C:\Users\Wars-\Documents\GitHub\Snake_CS\Snake\Snake.cpp(863,35): warning C4101: 'szNN': variable local sin referencia
-C:\Users\Wars-\Documents\GitHub\Snake_CS\Snake\Snake.cpp(1067,5): error C4996: 'wcstombs': This function or variable may be unsafe. Consider using wcstombs_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Users\Wars-\Documents\GitHub\Snake_CS\Snake\Snake.cpp(953,11): warning C4101: 'msg': variable local sin referencia
+C:\Users\Wars-\Documents\GitHub\Snake_CS\Snake\Snake.cpp(963,25): warning C4101: 'szIP': variable local sin referencia
+C:\Users\Wars-\Documents\GitHub\Snake_CS\Snake\Snake.cpp(963,35): warning C4101: 'szNN': variable local sin referencia
+  Snake.vcxproj -> C:\Users\Wars-\Documents\GitHub\Snake_CS\Snake\Debug\Snake.exe

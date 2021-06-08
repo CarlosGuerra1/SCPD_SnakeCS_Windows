@@ -13,6 +13,11 @@
 #define IDC_SNAKE                       109
 #define IDM_NUEVO                       110
 
+#define IDC_EDITCHAT		200
+#define IDC_EDITESCRIBIR	201
+#define IDC_EDITIP			202
+#define IDC_BOTONENVIAR		203
+
 #define IDR_MAINFRAME                   128
 #define ID_ARCHIVO_ARCHIVO              32771
 #define ID_ARCHIVO_NUEVO                32772

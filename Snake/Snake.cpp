@@ -64,11 +64,14 @@ static BOOL Inicio_b = false;
 static int CrearSala_b = 0;
 
 static BOOL UnirseSala_b = false;
-static int Modo;
+static int Modo = NULL;
 
 
 char szMiIP[17] = "127.0.0.1";              // Dirección IP
 char szUsuario[32] = "Carlos";              // Nombre actual de usuario 
+
+char IP[17];
+char ip[17] = "192.168.1.67";
 
 static PEDACITOS* serpiente = NULL;
 static PEDACITOS* serpiente2 = NULL;
@@ -80,8 +83,11 @@ static BOOL band = true;
 void Colorear_texto(HWND hChat, char* szUsuario, long iLength, COLORREF color);
 
 DWORD WINAPI Servidor(LPVOID argumento);
+DWORD WINAPI Servidor2(LPVOID argumento);
 int Cliente(char* szDirIP, PSTR pstrMensaje);
+
 int EnviarMensaje(char*, HWND);
+int EnviarMensaje2(char*, char*);
 
 PEDACITOS* NuevaSerpiente(int,int,int);
 void DibujarSerpiente(HDC, const PEDACITOS*);
@@ -92,12 +98,24 @@ int Colisionar(const PEDACITOS*, int);
 int Comer(const PEDACITOS *, int, RECT);
 void CrearComida(RECT rect);
 
+
+
+int server(char* szDirIP, LPSTR pstrMensaje);
+int sv(char* szDirIP, LPSTR pstrMensaje);
+
+
+
 int MovVal(PEDACITOS*, int,int);
 void CrearSerpientes(HWND);
 void Procesar( char* );
 char* NumChar(int);
 
+static HANDLE hHiloServidor;
+static DWORD idHiloServidor;
+static HANDLE hHiloServidor2;
+static DWORD idHiloServidor2;
 
+char buffer[30] = "";
 
 // Variables globales:
 HINSTANCE hInst;                                // instancia actual
@@ -236,10 +254,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     PAINTSTRUCT ps;
     HDC hdc;
     RECT rect{};
-    char buffer[20] = "";
+    static HPEN hpen1,hpen2;
 
-    static HANDLE hHiloServidor;
-    static DWORD idHiloServidor;
+
+
     
     switch (message)
     {
@@ -248,6 +266,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
        
         serpiente = NuevaSerpiente(tams,5,5);
         serpiente2 = NuevaSerpiente(tams2, 10, 10);
+
+        hpen1 = CreatePen(PS_SOLID, 2, RGB(80, 255, 80));
+        hpen2 = CreatePen(PS_SOLID, 2, RGB(255, 80, 80));
+
 
         //snakes = NS(2, tams);
         SetTimer(hWnd, IDT_TIMER1, 500, NULL);
@@ -327,11 +349,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 strcat(buffer, NumChar(1));
                 strcat(buffer, NumChar(ARRIBA));
                 strcat(buffer, NumChar(tams));
+               
             }
             if (Modo == CL) {
                 strcat(buffer, NumChar(2));
                 strcat(buffer, NumChar(ARRIBA));
                 strcat(buffer, NumChar(tams2));
+                
             }
 
             EnviarMensaje(buffer, hIP);
@@ -344,14 +368,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 strcat(buffer, NumChar(1));
                 strcat(buffer, NumChar(ABAJO));
                 strcat(buffer, NumChar(tams));
+                
             }
             if (Modo == CL) {
                 strcat(buffer, NumChar(2));
                 strcat(buffer, NumChar(ABAJO));
                 strcat(buffer, NumChar(tams2));
+                
             }
-
             EnviarMensaje(buffer, hIP);
+            
             break;
         }
         case VK_LEFT: {
@@ -361,14 +387,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 strcat(buffer, NumChar(1));
                 strcat(buffer, NumChar(IZQ));
                 strcat(buffer, NumChar(tams));
+                
             }
             if (Modo == CL) {
                 strcat(buffer, NumChar(2));
                 strcat(buffer, NumChar(IZQ));
                 strcat(buffer, NumChar(tams2));
+                
             }
-
             EnviarMensaje(buffer, hIP);
+            
             break;
         } 
         case VK_RIGHT: {
@@ -378,14 +406,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 strcat(buffer, NumChar(1));
                 strcat(buffer, NumChar(DER));
                 strcat(buffer, NumChar(tams));
+                
             }
             if (Modo == CL) {
                 strcat(buffer, NumChar(2));
                 strcat(buffer, NumChar(DER));
                 strcat(buffer, NumChar(tams2));
+                
             }
-
-            EnviarMensaje(buffer, hIP);           
+            EnviarMensaje(buffer, hIP);
+                      
             break;
         }
         default:
@@ -401,7 +431,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             switch (wmId)
             {
             case IDC_BOTONENVIAR: {
-                                
+                strcpy(buffer, "0 0 0 ");
                 if (EnviarMensaje(buffer, hIP)) {
                     /*
                     if (serpiente != NULL) {                       
@@ -415,6 +445,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         serpiente2 = NuevaSerpiente(tams2, 10, 10);
                         Inicio_b = true;                        
                     }*/
+
                     cuenta = 0;
                     InvalidateRect(hWnd, NULL, TRUE);
                 }
@@ -455,13 +486,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 }
 
                 Modo = SV;                
+                //MessageBox(NULL, L"Modo SV", L"MODO SV", MB_OK);
                 UnirseSala_b = false;
                 break;
             }
             case ID_NUEVOJUEGO_UNIRSEASALA: {
+
                 UnirseSala_b = true;
                 CrearSala_b = 0;
                 Modo = CL;
+                //MessageBox(NULL, L"Modo CL", L"MODO CL", MB_OK);
                 break;
             }
 
@@ -480,11 +514,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             hdc = BeginPaint(hWnd, &ps);
             HPEN hpenTemp;
+            //HBRUSH hbrTemp;
+
             // TODO: Agregar cualquier código de dibujo que use hDC aquí...
 
             if (Inicio_b) {
+                hpenTemp = (HPEN)SelectObject(hdc, hpen1);
+ 
+
                 DibujarSerpiente(hdc, serpiente);
-                DibujarSerpiente(hdc, serpiente2);
+
+                SelectObject(hdc, hpenTemp);
+     
+
+                hpenTemp = (HPEN)SelectObject(hdc, hpen2);
+      
+
+                DibujarSerpiente(hdc, serpiente2); 
+
+                SelectObject(hdc, hpenTemp);
+     
             }
             
             if (com.tipo == CRECE) {
@@ -533,6 +582,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_DESTROY:
+        DeleteObject(hpen1);
+        DeleteObject(hpen2);
+
         free(serpiente);
         free(serpiente2);
         PostQuitMessage(0);
@@ -610,6 +662,13 @@ PEDACITOS * NuevaSerpiente(int tams,int x,int y) {
 }
 void DibujarSerpiente(HDC hdc, const PEDACITOS* serpiente) {
     int i = 1;
+
+    HPEN hpenTemp, hpenN;
+    HBRUSH hbrTemp, hbrB;
+
+    hpenN = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
+    hbrB = CreateSolidBrush(RGB(255, 255, 255));
+
     switch (serpiente[0].dir)
     {
     case DER:
@@ -671,6 +730,9 @@ void DibujarSerpiente(HDC hdc, const PEDACITOS* serpiente) {
         serpiente[i].pos.y * TAMSERP + TAMSERP,
         5, 5);
 
+
+    hpenTemp = (HPEN)SelectObject(hdc, hpenN);
+    hbrTemp = (HBRUSH)SelectObject(hdc, hbrB);
     switch (serpiente[i].dir)
     {
     case DER:
@@ -812,6 +874,12 @@ void DibujarSerpiente(HDC hdc, const PEDACITOS* serpiente) {
     default:
         break;
     }
+
+    SelectObject(hdc, hpenTemp);
+    SelectObject(hdc, hbrTemp);
+
+    DeleteObject(hpenN);
+    DeleteObject(hbrB);
 }
 
 int MovVal(PEDACITOS* serpiente, int dir,int tams) {
@@ -1016,7 +1084,7 @@ void CrearComida(RECT rect) {
 
 ///////////////////////////////////////////////////////////////////////
 
-int EnviarMensaje(char *hEscribir, HWND hIP) {
+int EnviarMensaje(char* hEscribir, HWND hIP) {
     TCHAR tchDirIP[16];
     char szDirIP[16];
     int tam = 0;
@@ -1043,12 +1111,20 @@ int EnviarMensaje(char *hEscribir, HWND hIP) {
     else {
 
         //GetWindowText(hEscribir, ptchBuffer, iLength + 1);     // Copiamos lo que tiene la caja de mensjes a enviar
-        swprintf(ptchBuffer, 20, L"%hs", hEscribir);
+        swprintf(ptchBuffer, 30, L"%hs", hEscribir);
 
         wcstombs_s(&i, pstrBuffer, (iLength + 1), ptchBuffer, (iLength + 1));
         pstrBuffer[iLength + 1] = '\0';
+        /*
+        if (Modo == SV) {
+            Cliente(IP, pstrBuffer);
+        }
+        else if (Modo == CL) {
+            Cliente(szDirIP, pstrBuffer);
+        }*/
 
-        Cliente(szDirIP, pstrBuffer);
+        
+        Cliente(ip, pstrBuffer);
 
         //SetWindowText(hEscribir, L"");
         free(pstrBuffer);
@@ -1060,7 +1136,153 @@ int EnviarMensaje(char *hEscribir, HWND hIP) {
 
 
 /// ///////////////////////////////////////////////////////////////////////
+/*
+DWORD WINAPI Servidor(LPVOID argumento) {
+    HWND hChat = (HWND)argumento;
+    HWND hWnd = (HWND)argumento;
+    WSADATA wsaData;
+    int iResult;
+    TCHAR msgFalla[256];
+    TCHAR msg[256];
 
+    SOCKET ListenSocket = INVALID_SOCKET;
+    SOCKET ClientSocket = INVALID_SOCKET;
+
+    struct addrinfo* result = NULL;
+    struct addrinfo hints;
+
+    int iSendResult;
+    int recvbuflen = DEFAULT_BUFLEN;
+    char szBuffer[256], szIP[16], szNN[32];
+
+    CrearSala_b = 1;
+    if (true) {
+
+        iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+        if (iResult != 0) {
+            wsprintf(msgFalla, L"WSAStartup failed with error: %d\n", iResult);
+            MessageBox(NULL, msgFalla, L"Error em servidore", MB_OK | MB_ICONERROR);
+
+            return 1;
+        }
+
+        ZeroMemory(&hints, sizeof(hints));
+        hints.ai_family = AF_INET;
+        hints.ai_socktype = SOCK_STREAM;
+        hints.ai_protocol = IPPROTO_TCP;
+        hints.ai_flags = AI_PASSIVE;
+
+        iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
+        if (iResult != 0) {
+            wsprintf(msgFalla, L"getaddrinfo failed with error: %d", iResult);
+            MessageBox(NULL, msgFalla, L"Error en servidor", MB_OK | MB_ICONERROR);
+            WSACleanup();
+
+            return 1;
+        }
+
+        // Crear SOCKET para la coneccion al server
+        ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+        if (ListenSocket == INVALID_SOCKET) {
+            wsprintf(msgFalla, L"socket failed with error: %d", WSAGetLastError());
+            MessageBox(NULL, msgFalla, L"Error en servidor", MB_OK | MB_ICONERROR);
+            freeaddrinfo(result);
+            WSACleanup();
+
+            return 1;
+        }
+
+        iResult = bind(ListenSocket, result->ai_addr, (int)result->ai_addrlen);
+        if (iResult == SOCKET_ERROR) {
+            wsprintf(msgFalla, L"listen failed with error: %d\n", WSAGetLastError());
+            MessageBox(NULL, msgFalla, L"Error en servidor", MB_OK | MB_ICONERROR);
+            freeaddrinfo(result);
+            closesocket(ListenSocket);
+            WSACleanup();
+
+            return 1;
+        }
+
+        freeaddrinfo(result);
+
+        iResult = listen(ListenSocket, SOMAXCONN);
+        if (iResult == SOCKET_ERROR) {
+            wsprintf(msgFalla, L"listen failed with error: %d", WSAGetLastError());
+            MessageBox(NULL, msgFalla, L"Error en servidor", MB_OK | MB_ICONERROR);
+            closesocket(ListenSocket);
+            WSACleanup();
+
+            return 1;
+        }
+    }
+
+    while (TRUE) {
+
+        ClientSocket = accept(ListenSocket, NULL, NULL);
+
+        CrearSala_b = 2;
+
+        if (ClientSocket == INVALID_SOCKET) {
+            wsprintf(msgFalla, L"acept failed with error: %d", WSAGetLastError());
+            MessageBox(NULL, msgFalla, L"Error en servidor", MB_OK | MB_ICONERROR);
+            closesocket(ListenSocket);
+            WSACleanup();
+            return 1;
+        }
+        else {
+            if (band) {
+                if (serpiente != NULL) {
+                    tams = 5;
+                    cuenta = 0;
+                    serpiente = NuevaSerpiente(tams, 5, 5);
+                }
+                if (serpiente2 != NULL) {
+                    tams = 5;
+                    cuenta = 0;
+                    serpiente2 = NuevaSerpiente(tams2, 15, 15);
+                }
+                InvalidateRect(hWnd, NULL, TRUE);
+                band = false;
+                Inicio_b = true;
+            }
+        }
+
+        /*****      Enviar mensajes al cliente     *****
+
+        // Recibir hasta que el par cierra la conexión
+
+        iResult = recv(ClientSocket, szBuffer, sizeof(char) * 256, 0);//2
+        sscanf(szBuffer, "%s %s", szIP, szNN);
+        sprintf_s(szBuffer, "Conectado PC");
+
+        // Enviar el búfer al remitente
+
+        iSendResult = send(ClientSocket, szBuffer, sizeof(char) * 256, 0);//3
+
+        iResult = recv(ClientSocket, szBuffer, sizeof(char) * 256, 0);//6
+
+        iSendResult = send(ClientSocket, szBuffer, sizeof(char) * 256, 0);//7
+
+        Procesar(szBuffer);
+        /*
+        if (Modo = SV) {
+            MessageBox(NULL, L"AEA", L"CL", MB_OK);
+        }
+        if (Modo = CL) {
+            MessageBox(NULL, L"AEA", L"CL", MB_OK);
+        }
+
+        iResult = shutdown(ClientSocket, SD_SEND);
+    }
+
+    // Limpiar
+
+    closesocket(ClientSocket);
+    WSACleanup();
+
+    return 1;
+}
+*/
 
 DWORD WINAPI Servidor(LPVOID argumento) {
     HWND hChat = (HWND)argumento;
@@ -1159,12 +1381,12 @@ DWORD WINAPI Servidor(LPVOID argumento) {
                 if (serpiente != NULL) {
                     tams = 5;
                     cuenta = 0;
-                    serpiente = NuevaSerpiente(tams, 5, 5);                    
+                    serpiente = NuevaSerpiente(tams, 1, 1);                    
                 }
                 if (serpiente2 != NULL) {
                     tams = 5;
                     cuenta = 0;
-                    serpiente2 = NuevaSerpiente(tams2, 15, 15);                    
+                    serpiente2 = NuevaSerpiente(tams2, 1, 5);                    
                 }
                 InvalidateRect(hWnd, NULL, TRUE);
                 band = false;
@@ -1176,18 +1398,29 @@ DWORD WINAPI Servidor(LPVOID argumento) {
 
         // Recibir hasta que el par cierra la conexión
 
-        iResult = recv(ClientSocket, szBuffer, sizeof(char) * 256, 0);
+        iResult = recv(ClientSocket, szBuffer, sizeof(char) * 256, 0);//2
         sscanf(szBuffer, "%s %s", szIP, szNN);
+        
+        strcpy(IP, szIP);
+
         sprintf_s(szBuffer, "Ok");
 
         // Enviar el búfer al remitente
 
-        iSendResult = send(ClientSocket, szBuffer, sizeof(char) * 256, 0);
-        iResult = recv(ClientSocket, szBuffer, sizeof(char) * 256, 0);
-        iSendResult = send(ClientSocket, szBuffer, sizeof(char) * 256, 0);
+        iSendResult = send(ClientSocket, szBuffer, sizeof(char) * 256, 0);//3
 
+        iResult = recv(ClientSocket, szBuffer, sizeof(char) * 256, 0);//6
+        iSendResult = send(ClientSocket, szBuffer, sizeof(char) * 256, 0);//7
+
+        /*
+        WCHAR    str[256];
+        MultiByteToWideChar(0, 0, szBuffer, 256, str, 256);        
+        MessageBox(NULL, str, L"SERVER BUFFER", MB_OK);
+        */
         Procesar(szBuffer);
+
         
+
         iResult = shutdown(ClientSocket, SD_SEND);
     }
 
@@ -1253,6 +1486,8 @@ int Cliente(char* szDirIP, LPSTR pstrMensaje) {
                 iResult = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
                 if (iResult == SOCKET_ERROR) {
                     closesocket(ConnectSocket);
+                    wsprintf(msgFalla, L"socket invalido alv: %d\n", WSAGetLastError());
+                    MessageBox(NULL, msgFalla, L"Error en cliente", MB_OK | MB_ICONERROR);
                     ConnectSocket = INVALID_SOCKET;
                     continue;
                 }
@@ -1276,17 +1511,18 @@ int Cliente(char* szDirIP, LPSTR pstrMensaje) {
                 if (serpiente != NULL) {
                     tams = 5;
                     cuenta = 0;
-                    serpiente = NuevaSerpiente(tams, 5, 5);
+                    serpiente = NuevaSerpiente(tams, 1, 1);
                 }
                 if (serpiente2 != NULL) {
                     tams = 5;
                     cuenta = 0;
-                    serpiente2 = NuevaSerpiente(tams2, 15, 15);
+                    serpiente2 = NuevaSerpiente(tams2, 1, 5);
                 }
                 
                 band = false;
                 Inicio_b = true;
             }
+            
         }
 
     }
@@ -1295,22 +1531,30 @@ int Cliente(char* szDirIP, LPSTR pstrMensaje) {
 
     sprintf(szMsg, "%s %s", szDirIP, szUsuario);
 
-    iResult = send(ConnectSocket, szMsg, sizeof(char) * 256, 0);            // Enviar IP y nombre de Usuario
-    iResult = recv(ConnectSocket, szMsg, sizeof(char) * 256, 0);            // Recibir confirmación de conexión "ok"
+    iResult = send(ConnectSocket, szMsg, sizeof(char) * 256, 0);//1            // Enviar IP y nombre de Usuario
+    iResult = recv(ConnectSocket, szMsg, sizeof(char) * 256, 0);//4            // Recibir confirmación de conexión "ok"
 
-    strcpy_s(szMsg, pstrMensaje);                                             // Cargar Mensaje de chat
 
-    iResult = send(ConnectSocket, szMsg, sizeof(char) * 256, 0);            // Enviar Mensaje
-    iResult = shutdown(ConnectSocket, SD_SEND);
-    iResult = recv(ConnectSocket, szMsg, sizeof(char) * 256, 0);            // Recibir el mismo mensaje enviado
-    
-    Procesar(szMsg);
+    sprintf(szMsg, "%s%s", pstrMensaje, szDirIP);
+    //strcpy_s(szMsg, pstrMensaje);                                             // Cargar Mensaje de chat
+
+
+    iResult = send(ConnectSocket, szMsg, sizeof(char) * 256, 0);//5            // Enviar Mensaje
  
+    iResult = recv(ConnectSocket, szMsg, sizeof(char) * 256, 0);//8            // Recibir el mismo mensaje enviado
+    /*
+    WCHAR    str[256];
+    MultiByteToWideChar(0, 0, szMsg, 256, str, 256);        
+    MessageBox(NULL, str, L"CLIENTE BUFFER", MB_OK);
+    */
+    Procesar(szMsg);
+    iResult = shutdown(ConnectSocket, SD_SEND);
     closesocket(ConnectSocket);                                             // Cerrar el socket
     WSACleanup();
 
     return 1;
 }
+
 
 char* NumChar(int num) {    
     char NumChar[3] = {num + '0' };
@@ -1345,29 +1589,35 @@ void Procesar(char* szMsg) {
     char D[2];
     char T[2];
     int Si =0, Di=0, Ti=0;
-    sscanf(szMsg, "%s %s %s", S, D,T);
 
+    sscanf(szMsg, "%s %s %s %s", S, D,T,IP);
+    
     Si = atoi(S);
     Di = atoi(D);
     Ti = atoi(T);
+    if (Si != 0) {
 
-    if (Si == 1 ) {   
-       MovVal(serpiente, Di, Ti);
+        if (Si == 1 ) {   
 
-    }
-    if(Si== 2 ){
-       MovVal(serpiente2, Di, Ti);
-    }
-    
-    WCHAR    str[256];
-    MultiByteToWideChar(0, 0, szMsg, 256, str, 256);
-    //MessageBox(NULL, str, L"Procesar", MB_OK);
+           //MovVal(serpiente, Di, Ti);
+           MovVal(serpiente, Di, Ti);
+           //MessageBox(NULL, L"s1", L"Si = 1", MB_OK);
+        }
+        if(Si == 2 ){
 
-    if (Modo == SV) {
-        MessageBox(NULL, str, L"SV", MB_OK);
+           MovVal(serpiente2, Di, Ti);
+           //MessageBox(NULL, L"s2", L"Si=2", MB_OK);
+        }
     }
+   
+    //WCHAR    str[256];
+    //MultiByteToWideChar(0, 0, szMsg, 256, str, 256);
+    /*
     if (Modo == CL) {
         MessageBox(NULL, str, L"CL", MB_OK);
     }
+    if (Modo == SV) {
+        MessageBox(NULL, str, L"SV", MB_OK);
+    }*/
 }
 

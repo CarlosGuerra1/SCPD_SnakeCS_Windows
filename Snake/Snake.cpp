@@ -36,6 +36,7 @@
 
 #define SV      0
 #define CL      1
+#define SO      2
 
 #define IDT_TIMER1  1
 
@@ -255,46 +256,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     HDC hdc;
     RECT rect{};
     static HPEN hpen1,hpen2;
-
-
-
     
     switch (message)
     {
     case WM_CREATE:
         {   
        
-        serpiente = NuevaSerpiente(tams,5,5);
-        serpiente2 = NuevaSerpiente(tams2, 10, 10);
+        serpiente = NuevaSerpiente(tams,0,1);
+        serpiente2 = NuevaSerpiente(tams2, 0, 5);
 
         hpen1 = CreatePen(PS_SOLID, 2, RGB(80, 255, 80));
         hpen2 = CreatePen(PS_SOLID, 2, RGB(255, 80, 80));
 
-
         //snakes = NS(2, tams);
         SetTimer(hWnd, IDT_TIMER1, 500, NULL);
 
-        hIP = CreateWindowEx(0,
-            L"EDIT",
-            L"",
-            ES_LEFT | WS_CHILD | WS_VISIBLE | WS_BORDER |
-            WS_TABSTOP,
-            510, 70,
-            200, 30,
-            hWnd,
-            (HMENU)IDC_EDITIP,
-            hInst,
-            NULL);
-
-        hEnviar = CreateWindowEx(0, L"BUTTON",
-            L"Enviar",
-            BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE |
-            WS_BORDER | WS_TABSTOP,
-            715, 70,
-            60, 30,
-            hWnd, (HMENU)IDC_BOTONENVIAR,
-            hInst,
-            NULL);
+        hIP = CreateWindowEx(0, L"EDIT",L"", ES_LEFT | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 510, 70, 200, 30, hWnd, (HMENU)IDC_EDITIP, hInst, NULL);
+        hEnviar = CreateWindowEx(0, L"BUTTON", L"Enviar", BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 715, 70, 60, 30, hWnd, (HMENU)IDC_BOTONENVIAR, hInst, NULL);
 
         }
         break;
@@ -344,77 +322,104 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
         case VK_UP: {
             strcpy(buffer, "");
-
-            if (Modo == SV) {
-                strcat(buffer, NumChar(1));
-                strcat(buffer, NumChar(ARRIBA));
-                strcat(buffer, NumChar(tams));
-               
+            if (Modo == SO) {
             }
-            if (Modo == CL) {
-                strcat(buffer, NumChar(2));
-                strcat(buffer, NumChar(ARRIBA));
-                strcat(buffer, NumChar(tams2));
-                
+            else {
+                if (Modo == SV) {
+ 
+                    strcat(buffer, NumChar(1));
+                    strcat(buffer, NumChar(ARRIBA));
+                    strcat(buffer, NumChar(tams));
+                    EnviarMensaje(buffer, hIP);
+                    InvalidateRect(hWnd, NULL, TRUE);
+                }
+                if (Modo == CL) {
+  
+                    strcat(buffer, NumChar(2));
+                    strcat(buffer, NumChar(ARRIBA));
+                    strcat(buffer, NumChar(tams2));
+                    EnviarMensaje(buffer, hIP);
+                    InvalidateRect(hWnd, NULL, TRUE);
+                }
+
             }
 
-            EnviarMensaje(buffer, hIP);
+
+            //EnviarMensaje(buffer, hIP);
             break;
         }
         case VK_DOWN: {
             strcpy(buffer, "");
+            if (Modo == SO) {
+            }
+            else {
+                if (Modo == SV) {
 
-            if (Modo == SV) {
-                strcat(buffer, NumChar(1));
-                strcat(buffer, NumChar(ABAJO));
-                strcat(buffer, NumChar(tams));
-                
+                    strcat(buffer, NumChar(1));
+                    strcat(buffer, NumChar(ABAJO));
+                    strcat(buffer, NumChar(tams));
+                    EnviarMensaje(buffer, hIP);
+                    InvalidateRect(hWnd, NULL, TRUE);
+                }
+                if (Modo == CL) {
+
+                    strcat(buffer, NumChar(2));
+                    strcat(buffer, NumChar(ABAJO));
+                    strcat(buffer, NumChar(tams2));
+                    EnviarMensaje(buffer, hIP);
+                    InvalidateRect(hWnd, NULL, TRUE);
+                }
+
             }
-            if (Modo == CL) {
-                strcat(buffer, NumChar(2));
-                strcat(buffer, NumChar(ABAJO));
-                strcat(buffer, NumChar(tams2));
-                
-            }
-            EnviarMensaje(buffer, hIP);
             
             break;
         }
         case VK_LEFT: {
             strcpy(buffer, "");
+            if (Modo == SO) {
+            }
+            else {
+                if (Modo == SV) {
 
-            if (Modo == SV) {
-                strcat(buffer, NumChar(1));
-                strcat(buffer, NumChar(IZQ));
-                strcat(buffer, NumChar(tams));
-                
+                    strcat(buffer, NumChar(1));
+                    strcat(buffer, NumChar(IZQ));
+                    strcat(buffer, NumChar(tams));
+                    EnviarMensaje(buffer, hIP);
+                    InvalidateRect(hWnd, NULL, TRUE);
+                }
+                if (Modo == CL) {
+
+                    strcat(buffer, NumChar(2));
+                    strcat(buffer, NumChar(IZQ));
+                    strcat(buffer, NumChar(tams2));
+                    EnviarMensaje(buffer, hIP);
+                    InvalidateRect(hWnd, NULL, TRUE);
+                }
+
             }
-            if (Modo == CL) {
-                strcat(buffer, NumChar(2));
-                strcat(buffer, NumChar(IZQ));
-                strcat(buffer, NumChar(tams2));
-                
-            }
-            EnviarMensaje(buffer, hIP);
-            
             break;
         } 
         case VK_RIGHT: {
             strcpy(buffer, "");
+            if (Modo == SO) {
+            }
+            else {
+                if (Modo == SV) {
+                    strcat(buffer, NumChar(1));
+                    strcat(buffer, NumChar(DER));
+                    strcat(buffer, NumChar(tams));
+                    EnviarMensaje(buffer, hIP);
+                    InvalidateRect(hWnd, NULL, TRUE);
+                }
+                if (Modo == CL) {
+                    strcat(buffer, NumChar(2));
+                    strcat(buffer, NumChar(DER));
+                    strcat(buffer, NumChar(tams2));
+                    EnviarMensaje(buffer, hIP);
+                    InvalidateRect(hWnd, NULL, TRUE);
+                }
 
-            if (Modo == SV) {
-                strcat(buffer, NumChar(1));
-                strcat(buffer, NumChar(DER));
-                strcat(buffer, NumChar(tams));
-                
-            }
-            if (Modo == CL) {
-                strcat(buffer, NumChar(2));
-                strcat(buffer, NumChar(DER));
-                strcat(buffer, NumChar(tams2));
-                
-            }
-            EnviarMensaje(buffer, hIP);
+            }   
                       
             break;
         }
@@ -431,25 +436,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             switch (wmId)
             {
             case IDC_BOTONENVIAR: {
+                /*
                 strcpy(buffer, "0 0 0 ");
                 if (EnviarMensaje(buffer, hIP)) {
-                    /*
-                    if (serpiente != NULL) {                       
-                        tams = 5;                        
-                        serpiente = NuevaSerpiente(tams, 5, 5);
-                        Inicio_b = true;
-                        
-                    }
-                    if (serpiente2 != NULL) {
-                        tams = 5;
-                        serpiente2 = NuevaSerpiente(tams2, 10, 10);
-                        Inicio_b = true;                        
-                    }*/
 
                     cuenta = 0;
                     InvalidateRect(hWnd, NULL, TRUE);
                 }
-
+                */
+                //Inicio_b = true;
+                InvalidateRect(hWnd, NULL, TRUE);
                 break;
             }   
             case ID_NUEVOJUEGO_SOLO: {
@@ -473,13 +469,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     Inicio_b = true;
                     InvalidateRect(hWnd, NULL, TRUE);
                 }
-
+                Modo = SO;
                 UnirseSala_b = false;
-                CrearSala_b = false;
+                CrearSala_b = 0;
                 break;
             }
             case ID_NUEVOJUEGO_CREARSALA: {
-
+                /*
+                KillTimer(hWnd, IDT_TIMER1);
+                free(serpiente);
+                free(serpiente2);
+                tams = 5;
+                tams2 = 5;
+                cuenta = 0;
+                serpiente = NuevaSerpiente(tams,0,1);
+                serpiente2 = NuevaSerpiente(tams2,0,5);
+                */
                 hHiloServidor = CreateThread(NULL,0,Servidor,(LPVOID)hWnd, 0,&idHiloServidor);
                 if (hHiloServidor == NULL) {
                     MessageBox(hWnd, L"Error al crear el hilo servidor", L"Error", MB_OK | MB_ICONERROR);
@@ -487,10 +492,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
                 Modo = SV;                
                 //MessageBox(NULL, L"Modo SV", L"MODO SV", MB_OK);
-                UnirseSala_b = false;
+                UnirseSala_b = true;
+                CrearSala_b = 1;
                 break;
             }
             case ID_NUEVOJUEGO_UNIRSEASALA: {
+
+                hHiloServidor2 = CreateThread(NULL, 0, Servidor, (LPVOID)hWnd, 0, &idHiloServidor2);
+                if (hHiloServidor2 == NULL) {
+                    MessageBox(hWnd, L"Error al crear el hilo servidor", L"Error", MB_OK | MB_ICONERROR);
+                }
 
                 UnirseSala_b = true;
                 CrearSala_b = 0;
@@ -518,23 +529,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             // TODO: Agregar cualquier código de dibujo que use hDC aquí...
 
-            if (Inicio_b) {
+            //if (Inicio_b) {
                 hpenTemp = (HPEN)SelectObject(hdc, hpen1);
- 
-
                 DibujarSerpiente(hdc, serpiente);
+                SelectObject(hdc, hpenTemp);     
 
-                SelectObject(hdc, hpenTemp);
-     
-
-                hpenTemp = (HPEN)SelectObject(hdc, hpen2);
-      
-
+                hpenTemp = (HPEN)SelectObject(hdc, hpen2);      
                 DibujarSerpiente(hdc, serpiente2); 
-
                 SelectObject(hdc, hpenTemp);
      
-            }
+            //}
             
             if (com.tipo == CRECE) {
                 RoundRect(hdc, com.pos.x * TAMSERP,
@@ -1124,7 +1128,7 @@ int EnviarMensaje(char* hEscribir, HWND hIP) {
         }*/
 
         
-        Cliente(ip, pstrBuffer);
+        Cliente(szDirIP, pstrBuffer);
 
         //SetWindowText(hEscribir, L"");
         free(pstrBuffer);
@@ -1302,7 +1306,7 @@ DWORD WINAPI Servidor(LPVOID argumento) {
     int recvbuflen = DEFAULT_BUFLEN;
     char szBuffer[256], szIP[16], szNN[32];
 
-    CrearSala_b = 1;
+    //CrearSala_b = 1;
     if (true) {
 
         iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -1366,6 +1370,7 @@ DWORD WINAPI Servidor(LPVOID argumento) {
     while (TRUE) {
 
         ClientSocket = accept(ListenSocket, NULL, NULL);
+        Inicio_b = true;
 
         CrearSala_b = 2;
 
@@ -1377,21 +1382,24 @@ DWORD WINAPI Servidor(LPVOID argumento) {
             return 1;
         }
         else {
+           
+            
             if (band) {
                 if (serpiente != NULL) {
                     tams = 5;
                     cuenta = 0;
-                    serpiente = NuevaSerpiente(tams, 1, 1);                    
+                    serpiente = NuevaSerpiente(tams, 0, 1);                    
                 }
                 if (serpiente2 != NULL) {
                     tams = 5;
                     cuenta = 0;
-                    serpiente2 = NuevaSerpiente(tams2, 1, 5);                    
+                    serpiente2 = NuevaSerpiente(tams2, 0, 5);                    
                 }
                 InvalidateRect(hWnd, NULL, TRUE);
                 band = false;
-                Inicio_b = true;
+                
             }
+            Inicio_b = true;
         }
 
         /*****      Enviar mensajes al cliente     ******/
@@ -1401,7 +1409,7 @@ DWORD WINAPI Servidor(LPVOID argumento) {
         iResult = recv(ClientSocket, szBuffer, sizeof(char) * 256, 0);//2
         sscanf(szBuffer, "%s %s", szIP, szNN);
         
-        strcpy(IP, szIP);
+        //strcpy(IP, szIP);
 
         sprintf_s(szBuffer, "Ok");
 
@@ -1417,6 +1425,7 @@ DWORD WINAPI Servidor(LPVOID argumento) {
         MultiByteToWideChar(0, 0, szBuffer, 256, str, 256);        
         MessageBox(NULL, str, L"SERVER BUFFER", MB_OK);
         */
+
         Procesar(szBuffer);
 
         
@@ -1485,9 +1494,7 @@ int Cliente(char* szDirIP, LPSTR pstrMensaje) {
                 // Connectar al server
                 iResult = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
                 if (iResult == SOCKET_ERROR) {
-                    closesocket(ConnectSocket);
-                    wsprintf(msgFalla, L"socket invalido alv: %d\n", WSAGetLastError());
-                    MessageBox(NULL, msgFalla, L"Error en cliente", MB_OK | MB_ICONERROR);
+                    closesocket(ConnectSocket);                    
                     ConnectSocket = INVALID_SOCKET;
                     continue;
                 }
@@ -1506,24 +1513,26 @@ int Cliente(char* szDirIP, LPSTR pstrMensaje) {
 
             return 1;
         }
+            
         else {
             if (band) {
                 if (serpiente != NULL) {
                     tams = 5;
                     cuenta = 0;
-                    serpiente = NuevaSerpiente(tams, 1, 1);
+                    serpiente = NuevaSerpiente(tams, 0, 1);
                 }
                 if (serpiente2 != NULL) {
-                    tams = 5;
+                    tams2 = 5;
                     cuenta = 0;
-                    serpiente2 = NuevaSerpiente(tams2, 1, 5);
+                    serpiente2 = NuevaSerpiente(tams2, 0, 5);
                 }
                 
                 band = false;
-                Inicio_b = true;
+                
             }
-            
+            Inicio_b = true;
         }
+            
 
     }
     
@@ -1534,13 +1543,11 @@ int Cliente(char* szDirIP, LPSTR pstrMensaje) {
     iResult = send(ConnectSocket, szMsg, sizeof(char) * 256, 0);//1            // Enviar IP y nombre de Usuario
     iResult = recv(ConnectSocket, szMsg, sizeof(char) * 256, 0);//4            // Recibir confirmación de conexión "ok"
 
-
-    sprintf(szMsg, "%s%s", pstrMensaje, szDirIP);
-    //strcpy_s(szMsg, pstrMensaje);                                             // Cargar Mensaje de chat
-
+    //sprintf(szMsg, "%s%s", pstrMensaje, szDirIP);
+    strcpy_s(szMsg, pstrMensaje);                                             // Cargar Mensaje de chat
 
     iResult = send(ConnectSocket, szMsg, sizeof(char) * 256, 0);//5            // Enviar Mensaje
- 
+    iResult = shutdown(ConnectSocket, SD_SEND);
     iResult = recv(ConnectSocket, szMsg, sizeof(char) * 256, 0);//8            // Recibir el mismo mensaje enviado
     /*
     WCHAR    str[256];
@@ -1548,7 +1555,7 @@ int Cliente(char* szDirIP, LPSTR pstrMensaje) {
     MessageBox(NULL, str, L"CLIENTE BUFFER", MB_OK);
     */
     Procesar(szMsg);
-    iResult = shutdown(ConnectSocket, SD_SEND);
+
     closesocket(ConnectSocket);                                             // Cerrar el socket
     WSACleanup();
 
@@ -1590,29 +1597,26 @@ void Procesar(char* szMsg) {
     char T[2];
     int Si =0, Di=0, Ti=0;
 
-    sscanf(szMsg, "%s %s %s %s", S, D,T,IP);
+    sscanf(szMsg, "%s %s %s", &S, &D,&T);
     
     Si = atoi(S);
     Di = atoi(D);
     Ti = atoi(T);
-    if (Si != 0) {
 
-        if (Si == 1 ) {   
-
-           //MovVal(serpiente, Di, Ti);
-           MovVal(serpiente, Di, Ti);
-           //MessageBox(NULL, L"s1", L"Si = 1", MB_OK);
-        }
-        if(Si == 2 ){
-
-           MovVal(serpiente2, Di, Ti);
-           //MessageBox(NULL, L"s2", L"Si=2", MB_OK);
-        }
+    if (Si == 1 ) {   
+        //serpiente[Ti - 1].dir = Di;  
+        MovVal(serpiente, Di, Ti);
+        
     }
-   
-    //WCHAR    str[256];
-    //MultiByteToWideChar(0, 0, szMsg, 256, str, 256);
-    /*
+    if(Si == 2 ){
+        //serpiente2[Ti - 1].dir = Di;
+        MovVal(serpiente2, Di, Ti);
+        
+    }
+    
+   /*
+    WCHAR    str[256];
+    MultiByteToWideChar(0, 0, szMsg, 256, str, 256);    
     if (Modo == CL) {
         MessageBox(NULL, str, L"CL", MB_OK);
     }

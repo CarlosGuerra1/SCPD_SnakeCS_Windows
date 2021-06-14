@@ -22,7 +22,9 @@
         > la comida se visualiza en ambos lados simultáneamente
         > si la comida es comida o reposicionada se refleja en ambos lados
         > debido a la poca sincronización las serpientes tienden a desfasarse en una posición
-        > no se implementó la colisión entre serpientes
+        > se implementó la colisión entre serpientes
+        > en el caso de que ambas snakes quieran comer una misma comida esta resultaria en
+          que las snakes terminarian chocando una a la otra
 
 */
 
@@ -128,6 +130,7 @@ int MoverSerpiente(PEDACITOS*, int, RECT, int);
 PEDACITOS* AjustarSerpiente(PEDACITOS*, int*, int, RECT);
 
 int Colisionar(const PEDACITOS*, int);
+int Colisionar2Serps(PEDACITOS*, PEDACITOS*, int, int);
 int Comer(const PEDACITOS*, int, RECT);
 void CrearComida(RECT rect);
 
@@ -681,22 +684,6 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
     }
     return (INT_PTR)FALSE;
 }
-/*
-SNAKES* NS(int num,int tams) {
-    SNAKES* snake = NULL;
-
-    snake = (SNAKES*)malloc(sizeof(SNAKES) * num);
-    if (snake == NULL) {
-        MessageBox(NULL, L"Sin memoria", L"Error", MB_OK | MB_ICONERROR);
-        exit(0);
-    }
-
-    for (int i = 0; i < num; i++) {
-        snake[i].id = i;
-        snake[i].peds = NuevaSerpiente(tams);
-    }
-
-}*/
 
 /*Función ya conocida*/
 PEDACITOS* NuevaSerpiente(int tams, int x, int y) {
@@ -1012,8 +999,12 @@ int MoverSerpiente(PEDACITOS* serpiente, int dir, RECT rect, int tams) {
     default:
         break;
     }
-    if (Colisionar(serpiente, tams)) { return 0; }
-    else { return 1; }
+    if (Colisionar(serpiente, tams) || Colisionar2Serps(serpiente,serpiente2,tams,tams2)) { 
+        return 0; 
+    }
+    else {
+        return 1; 
+    }
 }
 
 /*
@@ -1070,6 +1061,22 @@ int Colisionar(const PEDACITOS* serpiente, int tams) {
     while (serpiente[i].tipo != CABEZA) {
         if (serpiente[i].pos.x == serpiente[tams - 1].pos.x &&
             serpiente[i].pos.y == serpiente[tams - 1].pos.y) {
+            return 1;
+        }
+        i++;
+    }
+    return 0;
+}
+
+/*
+   Colisionar2Serps sirve para detectar en que momento alguna serpiente choca con otra.
+*/
+
+int Colisionar2Serps(PEDACITOS* serpiente, PEDACITOS* serpiente2, int tams, int tams2) {
+    int i = 0;
+    while (serpiente[i].tipo != CABEZA) {
+        if (serpiente[i].pos.x == serpiente2[tams2 - 1].pos.x && 
+            serpiente[i].pos.y == serpiente2[tams2 - 1].pos.y) {
             return 1;
         }
         i++;

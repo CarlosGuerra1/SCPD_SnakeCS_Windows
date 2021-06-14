@@ -1,5 +1,7 @@
 ﻿  Snake.cpp
-C:\Users\Wars-\Documents\GitHub\Snake_CS\Snake\Snake.cpp(1185,11): warning C4101: 'msg': variable local sin referencia
-C:\Users\Wars-\Documents\GitHub\Snake_CS\Snake\Snake.cpp(1434,28): warning C4838: la conversión de 'int' en 'char' requiere una conversión de restricción
-C:\Users\Wars-\Documents\GitHub\Snake_CS\Snake\Snake.cpp(1436): warning C4172: devolución de dirección de la variable local o temporal: NumChar
+C:\Users\Wars-\Documents\GitHub\Snake_CS\Snake\Snake.cpp(1230,10): warning C4101: 'szDirIP': variable local sin referencia
+C:\Users\Wars-\Documents\GitHub\Snake_CS\Snake\Snake.cpp(1229,11): warning C4101: 'tchDirIP': variable local sin referencia
+C:\Users\Wars-\Documents\GitHub\Snake_CS\Snake\Snake.cpp(1275,11): warning C4101: 'msg': variable local sin referencia
+C:\Users\Wars-\Documents\GitHub\Snake_CS\Snake\Snake.cpp(1557,29): warning C4838: la conversión de 'int' en 'char' requiere una conversión de restricción
+C:\Users\Wars-\Documents\GitHub\Snake_CS\Snake\Snake.cpp(1559): warning C4172: devolución de dirección de la variable local o temporal: NumChar
   Snake.vcxproj -> C:\Users\Wars-\Documents\GitHub\Snake_CS\Snake\Debug\Snake.exe
